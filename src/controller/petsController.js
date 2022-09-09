@@ -1,3 +1,4 @@
+const Joi = require('joi');
 const Pet = require('../model/petsModel');
 
 const index = async (req, res) => {
@@ -40,10 +41,6 @@ const remove = async (req, res) => {
 };
 
 const add = async (req, res) => {
-  if (!(req.body.name.trim()) || !req.body.dob || !(req.body.email.trim())) {
-    res.status(400).json({ msg: 'data missing' });
-    return;
-  }
   try {
     const pet = new Pet(req.body.name, req.body.dob, req.body.email);
     if (await pet.save()) {
@@ -57,6 +54,24 @@ const add = async (req, res) => {
     res.status(500).json({ msg: 'Error on adding data to DB.' });
   }
 };
+
+async function checkPetBody(req, res, next) {
+  const petSchema = Joi.object({
+    name: Joi.string().trim().min(3).max(30)
+      .required(),
+    dob: Joi.date().less(new Date().toLocaleDateString()).required(),
+    email: Joi.string().email().required(),
+  });
+  try {
+    const validationResult = await petSchema.validateAsync(req.body, { abortEarly: false });
+    console.log('validationResult ===', validationResult);
+    next();
+  } catch (error) {
+    // is error pasiusti atgal tik message dalis
+    // is error nusiusti objektu masyva kuris turi field ir message
+    res.status(400).json({ msg: 'bad data sent', error: error.details.map(({ path, message }) => ({ message, fields: path[0] })), type: 'validation' });
+  }
+}
 module.exports = {
-  index, add, remove, get,
+  index, add, remove, get, checkPetBody,
 };

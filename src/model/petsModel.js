@@ -29,7 +29,6 @@ class Pet {
   static async delete(id) {
     const sql = 'UPDATE pets SET archived = 1 WHERE id = ? AND archived = 0';
     const [rows] = await db.execute(sql, [id]);
-    console.log('rows ===', rows);
     if (rows.affectedRows > 0) return true;
     return false;
   }

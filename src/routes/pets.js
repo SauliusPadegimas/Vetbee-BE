@@ -3,7 +3,8 @@ const controller = require('../controller/petsController');
 
 const petsRouter = express.Router();
 
-petsRouter.route('/').get(controller.index).post(controller.add);
+petsRouter.get('/', controller.index);
+petsRouter.post('/', controller.checkPetBody, controller.add);
 petsRouter.route('/:id').get(controller.get).delete(controller.remove);
 
 module.exports = petsRouter;

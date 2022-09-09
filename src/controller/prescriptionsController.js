@@ -1,3 +1,4 @@
+const Joi = require('joi');
 const Prescription = require('../model/prescriptionsModel');
 
 const get = async (req, res) => {
@@ -13,10 +14,6 @@ const get = async (req, res) => {
 };
 
 const add = async (req, res) => {
-  if (!req.body.medicationId || !(req.body.comment.trim())) {
-    res.status(400).json('data missing');
-    return;
-  }
   try {
     const pres = new Prescription(req.body.medicationId, req.body.comment);
     if (await pres.save(req.params.id)) {
@@ -30,6 +27,23 @@ const add = async (req, res) => {
     res.status(500).json({ msg: 'Error on adding data to DB.' });
   }
 };
+
+async function checkPresBody(req, res, next) {
+  const presSchema = Joi.object({
+    medication_id: Joi.number().integer().required(),
+    pet_id: Joi.number().integer().required(),
+    comment: Joi.string().min(1),
+  });
+  try {
+    const validationResult = await presSchema.validateAsync(req.body, { abortEarly: false });
+    console.log('validationResult ===', validationResult);
+    next();
+  } catch (error) {
+    // is error pasiusti atgal tik message dalis
+    // is error nusiusti objektu masyva kuris turi field ir message
+    res.status(400).json({ msg: 'bad data sent', error: error.details.map((obj) => ({ message: obj.message, fields: obj.path[0] })), type: 'validation' });
+  }
+}
 module.exports = {
-  add, get,
+  add, get, checkPresBody,
 };

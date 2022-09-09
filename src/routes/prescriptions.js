@@ -3,6 +3,7 @@ const controller = require('../controller/prescriptionsController');
 
 const presRouter = express.Router();
 
-presRouter.route('/:id').post(controller.add).get(controller.get);
+presRouter.post('/:id', controller.checkPresBody, controller.get);
+presRouter.get('/:id', controller.get);
 
 module.exports = presRouter;

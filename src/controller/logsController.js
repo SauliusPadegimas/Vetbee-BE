@@ -1,3 +1,4 @@
+const Joi = require('joi');
 const Log = require('../model/logsModel');
 
 const index = async (req, res) => {
@@ -23,10 +24,6 @@ const get = async (req, res) => {
 };
 
 const add = async (req, res) => {
-  if (!req.body.pet_id || !(req.body.description.trim()) || !(req.body.status.trim())) {
-    res.status(400).json({ msg: 'Data missing' });
-    return;
-  }
   try {
     const log = new Log(req.body.pet_id, req.body.description, req.body.status);
     if (await log.save()) {
@@ -40,6 +37,23 @@ const add = async (req, res) => {
     res.status(500).json({ msg: 'Error on adding data to DB.' });
   }
 };
+async function checkLogsBody(req, res, next) {
+  const logsSchema = Joi.object({
+    pet_id: Joi.number().integer().required(),
+    description: Joi.string().min(1).required(),
+    status: Joi.string().min(1),
+  });
+  try {
+    const validationResult = await logsSchema.validateAsync(req.body, { abortEarly: false });
+    console.log('validationResult ===', validationResult);
+    next();
+  } catch (error) {
+    console.log('error ===', error);
+    // is error pasiusti atgal tik message dalis
+    // is error nusiusti objektu masyva kuris turi field ir message
+    res.status(400).json({ msg: 'bad data sent', error: error.details.map((obj) => ({ message: obj.message, fields: obj.path[0] })), type: 'validation' });
+  }
+}
 module.exports = {
-  index, add, get,
+  index, add, get, checkLogsBody,
 };

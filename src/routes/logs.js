@@ -3,7 +3,8 @@ const controller = require('../controller/logsController');
 
 const logsRouter = express.Router();
 
-logsRouter.route('/').get(controller.index).post(controller.add);
+logsRouter.get('/', controller.index);
+logsRouter.post('/', controller.checkLogsBody, controller.add);
 logsRouter.route('/:id').get(controller.get);
 
 module.exports = logsRouter;

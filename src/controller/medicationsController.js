@@ -1,3 +1,4 @@
+const Joi = require('joi');
 const Medication = require('../model/medicationsModel');
 
 const index = async (req, res) => {
@@ -23,10 +24,6 @@ const get = async (req, res) => {
 };
 
 const add = async (req, res) => {
-  if (!(req.body.name.trim()) || !(req.body.description.trim())) {
-    res.status(400).json({ msg: 'Data missing' });
-    return;
-  }
   try {
     const med = new Medication(req.body.name, req.body.description);
     if (await med.save()) {
@@ -40,6 +37,21 @@ const add = async (req, res) => {
     res.status(500).json({ msg: 'Error on adding data to DB.' });
   }
 };
+
+async function checkMedsBody(req, res, next) {
+  const schema = Joi.object({
+    name: Joi.string().min(3).required(),
+    description: Joi.string().min(1),
+  });
+  try {
+    const value = await schema.validateAsync(req.body, { abortEarly: false });
+    console.log('value ===', value);
+    next();
+  } catch (error) {
+    res.status(400).json({ msg: 'bad data sent', error: error.details.map((obj) => ({ message: obj.message, fields: obj.path[0] })), type: 'validation' });
+  }
+}
+
 module.exports = {
-  index, add, get,
+  index, add, get, checkMedsBody,
 };
