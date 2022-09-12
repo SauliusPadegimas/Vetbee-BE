@@ -20,7 +20,7 @@ class Log {
   }
 
   static async getLog(id) {
-    const sql = 'SELECT logs.description, status, pets.name, pets.dob, pets.client_email FROM logs LEFT JOIN pets ON logs.pet_id = pets.id WHERE logs.pet_id = ? ';
+    const sql = 'SELECT logs.description, status, pets.name AS name, pets.dob, pets.client_email FROM logs LEFT JOIN pets ON logs.pet_id = pets.id WHERE logs.pet_id = ? ';
     const [rows] = await db.execute(sql, [id]);
     return rows;
   }

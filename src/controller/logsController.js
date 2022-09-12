@@ -25,7 +25,7 @@ const get = async (req, res) => {
 
 const add = async (req, res) => {
   try {
-    const log = new Log(req.body.pet_id, req.body.description, req.body.status);
+    const log = new Log(req.body.petId, req.body.description, req.body.status);
     if (await log.save()) {
       res.status(201).json('log successfully added to DB');
     } else {
@@ -39,7 +39,7 @@ const add = async (req, res) => {
 };
 async function checkLogsBody(req, res, next) {
   const logsSchema = Joi.object({
-    pet_id: Joi.number().integer().required(),
+    petId: Joi.number().integer().required(),
     description: Joi.string().min(1).required(),
     status: Joi.string().min(1),
   });

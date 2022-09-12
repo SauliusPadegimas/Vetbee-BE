@@ -15,7 +15,7 @@ const get = async (req, res) => {
 
 const add = async (req, res) => {
   try {
-    const pres = new Prescription(req.body.medicationId, req.body.comment);
+    const pres = new Prescription(req.body.medication, req.body.comment);
     if (await pres.save(req.params.id)) {
       res.status(201).json('prescription successfully added to DB');
     } else {
@@ -30,8 +30,7 @@ const add = async (req, res) => {
 
 async function checkPresBody(req, res, next) {
   const presSchema = Joi.object({
-    medication_id: Joi.number().integer().required(),
-    pet_id: Joi.number().integer().required(),
+    medication: Joi.number().integer().required(),
     comment: Joi.string().min(1),
   });
   try {
